@@ -11,19 +11,18 @@ class HttpHandler(http_server.BaseHTTPRequestHandler):
             fun = paths.get(short_paths)
             if fun is not None:
                 return fun(self)
+        return http.HTTPStatus.NOT_FOUND, str.format('The rout was not found ("{0}")', self.path), dict()
 
 
     def do_GET(self):
-        status, data = self.callback()
-        if data is None:
-            data = dict()
-        data["status"] = "ok" if status == http.HTTPStatus.OK else "error " + str(status)
+        status, err, data = self.callback()
+        data['status'] = 'ok' if status == http.HTTPStatus.OK else str.format('error ({0}): {1}', status, err)
         self.create_response(status, data)
 
 
     def do_POST(self):
-        status, data = self.callback()
-        data["status"] = "ok" if status == http.HTTPStatus.OK else "error " + str(status)
+        status, err, data = self.callback()
+        data['status'] = 'ok' if status == http.HTTPStatus.OK else str.format('error ({0}): {1}', status, err)
         self.create_response(status, data)
 
 
