@@ -37,7 +37,7 @@ def visited_domains(handler):
         elif val[i] == query_val[0] or val[i] <= query_val[1]:
             ret.append(key.decode('utf-8'))
 
-    return http.HTTPStatus.OK, 'None', {'links': ret}
+    return http.HTTPStatus.OK, None, {'links': ret}
 
 
 def visited_links(handler):
@@ -57,8 +57,7 @@ def visited_links(handler):
     for link in links:
         conn.rpush(link, now)
 
-    print('1')
-    return http.HTTPStatus.OK, 'None', dict()
+    return http.HTTPStatus.OK, None, dict()
 
 
 def set_routes(handler):
