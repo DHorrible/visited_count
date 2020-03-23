@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+import http
 import bisect
 import urllib.parse
 import logging as log
@@ -16,10 +17,16 @@ def visited_domains(handler):
     global drv
     ret = list()
     conn = drv.get_conn()
+
     query = urllib.parse.urlparse(handler.path).query
+    if re.match(r'^from=[0-9]+&to=[0-9]+$', query) is None:
+        return http.HTTPStatus.BAD_REQUEST, dict()
     query_val = re.sub(r'(from|to)=', '', query).split('&')
     query_val[0] = int(query_val[0])
     query_val[1] = int(query_val[1])
+    if rquery_val[0] > query_val[1]:
+        return http.HTTPStatus.BAD_REQUEST, dict()
+
     keys = conn.keys('*')
     for key in keys:
         raw_val = conn.lrange(key, 0, -1)
@@ -30,24 +37,27 @@ def visited_domains(handler):
         elif val[i] == query_val[0] or val[i] <= query_val[1]:
             ret.append(key.decode('utf-8'))
 
-    return 200, {'links': ret}
-
+    return http.HTTPStatus.OK, {'links': ret}
 
 
 def visited_links(handler):
     global drv
     conn = drv.get_conn()
-    content_length = int(handler.headers['Content-Length'])
+
+    conent_header = handler.headers.get('Content-Length')
+    if conent_header is None:
+        return http.HTTPStatus.PARTIAL_CONTENT, dict()
+    content_length = int(conent_header)
     post_data = json.loads(handler.rfile.read(content_length).decode('utf-8'))
     links = post_data.get('links')
     if links is None:
-        return
+        return http.HTTPStatus.PARTIAL_CONTENT, dict()
 
     now = int(time.time())
     for link in links:
         conn.rpush(link, now)
 
-    return 200, dict()
+    return http.HTTPStatus.OK, dict()
 
 
 def set_routes(handler):

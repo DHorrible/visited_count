@@ -11,5 +11,7 @@ class DB:
                 'socket_timeout': 1
             }
         self._conn = redis.Redis(**cfg)
+
+
     def get_conn(self):
         return self._conn
