@@ -1,3 +1,4 @@
+import re
 import json
 import http
 import http.server as http_server
@@ -6,18 +7,20 @@ class HttpHandler(http_server.BaseHTTPRequestHandler):
     def callback(self):
         paths = self._routes.get(self.command)
         if paths is not None:
-            fun = paths.get(self.path)
+            short_paths = re.sub(r'\?.*', '', self.path)
+            fun = paths.get(short_paths)
             if fun is not None:
                 return fun(self)
     def do_GET(self):
-        data = self.callback()
-        data["status"] = "ok"
-        self.create_response(data)
+        status, data = self.callback()
+        if data is None:
+            data = dict()
+        data["status"] = "ok" if status == http.HTTPStatus.OK else "error " + str(status)
+        self.create_response(status, data)
     def do_POST(self):
-        self.callback()
-        self.create_response({
-            "status": "ok"
-        })
+        status, data = self.callback()
+        data["status"] = "ok" if status == http.HTTPStatus.OK else "error " + str(status)
+        self.create_response(status, data)
     def route(self, method, path, callback):
         if hasattr(self, '_routes') == False:
             self._routes = dict()
@@ -26,10 +29,11 @@ class HttpHandler(http_server.BaseHTTPRequestHandler):
             paths = dict()
         paths[path] = callback
         self._routes[method] = paths
-    def create_response(self, data):
+    def create_response(self, status, data):
         self.send_response(200)
-        self.send_header('content-type','application/json')
+        self.send_header('content-type', 'application/json')
         self.end_headers()
+        print(data)
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
 class Server:
