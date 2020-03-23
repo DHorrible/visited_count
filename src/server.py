@@ -28,7 +28,7 @@ def visited_domains(handler):
         i = bisect.bisect_left(val, query_val[0])
         if i == len(val):
             continue
-        elif val[i] == query_val[0] or val[i] <= query_val[0]:
+        elif val[i] == query_val[0] or val[i] <= query_val[1]:
             ret.append(key.decode('utf-8'))
 
     return 200, {'links': ret}
