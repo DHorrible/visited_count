@@ -24,7 +24,6 @@ def visited_domains(handler):
     for key in keys:
         raw_val = conn.lrange(key, 0, -1)
         val = [int(x.decode('utf-8')) for x in raw_val]
-        print(val)
         i = bisect.bisect_left(val, query_val[0])
         if i == len(val):
             continue
@@ -72,7 +71,7 @@ def set_log():
         filename += "/server.log"
     log.basicConfig(**{
         'filename': filename,
-        'level': log.INFO,
+        'level': log.DEBUG,
         'format': '%(asctime)s - |%(levelname)s|: %(message)s'
     })
 
@@ -88,7 +87,7 @@ def run(host='localhost', port=8080):
     log.info('Redis has bean configurated')
 
     log.info('Starting server...\n')
-    server = utility.Server('localhost', port, utility.HttpHandler, log)
+    server = utility.Server('localhost', port, utility.HttpHandler)
     set_routes(server.get_handler())
     try:
         server.start()

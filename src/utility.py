@@ -37,11 +37,10 @@ class HttpHandler(http_server.BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data).encode('utf-8'))
 
 class Server:
-    def __init__(self, host, port, handler, log):
+    def __init__(self, host, port, handler):
         self._host = host
         self._port = port
         self._handler = handler
-        self._log = log
         self._httpd = http_server.HTTPServer((self._host, self._port), self._handler)
     def get_handler(self):
         return self._handler
