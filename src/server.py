@@ -20,12 +20,12 @@ def visited_domains(handler):
 
     query = urllib.parse.urlparse(handler.path).query
     if re.match(r'^from=[0-9]+&to=[0-9]+$', query) is None:
-        return http.HTTPStatus.BAD_REQUEST, dict()
+        return http.HTTPStatus.BAD_REQUEST, 'An query is not matched with "from=<number>&to=<number>"', dict()
     query_val = re.sub(r'(from|to)=', '', query).split('&')
     query_val[0] = int(query_val[0])
     query_val[1] = int(query_val[1])
-    if rquery_val[0] > query_val[1]:
-        return http.HTTPStatus.BAD_REQUEST, dict()
+    if query_val[0] > query_val[1]:
+        return http.HTTPStatus.BAD_REQUEST, 'The value of the "from" less or equal the value of the "to"', dict()
 
     keys = conn.keys('*')
     for key in keys:
@@ -37,7 +37,7 @@ def visited_domains(handler):
         elif val[i] == query_val[0] or val[i] <= query_val[1]:
             ret.append(key.decode('utf-8'))
 
-    return http.HTTPStatus.OK, {'links': ret}
+    return http.HTTPStatus.OK, None, {'links': ret}
 
 
 def visited_links(handler):
@@ -46,18 +46,19 @@ def visited_links(handler):
 
     conent_header = handler.headers.get('Content-Length')
     if conent_header is None:
-        return http.HTTPStatus.PARTIAL_CONTENT, dict()
+        return http.HTTPStatus.PARTIAL_CONTENT, 'The request does not contain the "Content-Length" header', dict()
     content_length = int(conent_header)
     post_data = json.loads(handler.rfile.read(content_length).decode('utf-8'))
     links = post_data.get('links')
     if links is None:
-        return http.HTTPStatus.PARTIAL_CONTENT, dict()
+        return http.HTTPStatus.PARTIAL_CONTENT, 'The json body does not contain the "links" attribute (links array)', dict()
 
     now = int(time.time())
     for link in links:
         conn.rpush(link, now)
 
-    return http.HTTPStatus.OK, dict()
+    print('1')
+    return http.HTTPStatus.OK, None, dict()
 
 
 def set_routes(handler):
