@@ -16,13 +16,13 @@ class HttpHandler(http_server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         status, err, data = self.callback()
-        data["status"] = "ok" if status == http.HTTPStatus.OK else str.format("error ({0}): {1}", status, err)
+        data['status'] = 'ok' if status == http.HTTPStatus.OK else str.format('error ({0}): {1}', status, err)
         self.create_response(status, data)
 
 
     def do_POST(self):
         status, err, data = self.callback()
-        data["status"] = "ok" if status == http.HTTPStatus.OK else str.format("error ({0}): {1}", status, err)
+        data['status'] = 'ok' if status == http.HTTPStatus.OK else str.format('error ({0}): {1}', status, err)
         self.create_response(status, data)
 
 

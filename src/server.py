@@ -74,11 +74,11 @@ def set_routes(handler):
 
 
 def set_log():
-    filename = os.getenv("ROOT_DIR")
+    filename = os.getenv('ROOT_DIR')
     if filename is None:
-        filename = "server.log"
+        filename = 'server.log'
     else:
-        filename += "/server.log"
+        filename += '/server.log'
     log.basicConfig(**{
         'filename': filename,
         'level': log.DEBUG,
