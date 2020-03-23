@@ -6,7 +6,7 @@ then
     BIN_DIR=$ROOT_DIR/bin
 else
     BIN_DIR=`dirname $0`
-    ROOT_DIR=`dirname BIN_DIR`
+    ROOT_DIR=`dirname $BIN_DIR`
 fi
 
 cd $ROOT_DIR
@@ -39,5 +39,6 @@ then
 fi
 
 export PYTHONPATH=$PYTHONPATH:$ROOT_DIR
+export ROOT_DIR=$ROOT_DIR
 
 exec $PYTHON_BIN "$SRC_DIR/server.py"

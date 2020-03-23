@@ -1,39 +1,73 @@
-#from http.server import BaseHTTPRequestHandler, HTTPServer
-import logging
+import os
+import logging as log
 
-import src.init
+import src.db as db
+import src.utility as utility
 
-# class Server:
-#     def __init__(self, host, port, handler):
-#         self._host = host
-#         self._port = port
-#         self._handler = handler
-#         self._httpd = BaseHTTPServer.HTTPServer((self._host, self._port), self._handler)
-#     def start(self):
-#         self._httpd.serve_forever()
-#     def stop(self):
-#         self._httpd.server_close()
+drv = None
 
+def visited_domains(handler):
+    global drv
+    print('visited_domains')
+    return dict()
 
-# class HttpHandler(http.server.BaseHTTPRequestHandler):
-#     def do_GET(self):
-#         if self.path == '/visited_domains':
-#             self.get_domains(self)
-#     def get_domains(self):
-#         pass
+def visited_links(handler):
+    global drv
+    print('visited_links')
+    return dict()
 
+def set_routes(handler):
+    handler.route(handler,
+        'GET',
+        '/visited_domains',
+        visited_domains
+    )
+    handler.route(handler,
+        'POST',
+        '/visited_links',
+        visited_links
+    )
 
+def set_log():
+    filename = os.getenv("ROOT_DIR")
+    if filename is None:
+        filename = "server.log"
+    else:
+        filename += "/server.log"
+    log.basicConfig(**{
+        'filename': filename,
+        'level': log.INFO,
+        'format': '%(asctime)s - |%(levelname)s|: %(message)s'
+    })
 
 def run(host='localhost', port=8080):
-    logging.basicConfig(filename="server.log", level=logging.INFO)
+    global drv
 
-    #r = init.cfg()
+    set_log()
+    drv = db.DB()
+    if drv.get_conn() == None:
+        log.error('Redis has not bean configurated')
+        return
+    log.info('Redis has bean configurated')
 
-    # if r == None:
-    #     logging.error('Redis has not bean configurated')
-    #     return
+    log.info('Starting server...\n')
+    server = utility.Server('localhost', port, utility.HttpHandler, log)
+    set_routes(server.get_handler())
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        pass
+    log.info('Stoping server...\n')
+    server.stop()
 
-    # server = Server('localhost', port, HttpHandler)
-    # server.start()
+if __name__ == '__main__':
+    from sys import argv
 
-run()
+    if len(argv) == 3:
+        host = str(argv[1])
+        port = int(argv[2])
+        run(host, port)
+    else:
+        run()
+else:
+    run()
