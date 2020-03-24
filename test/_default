@@ -1,0 +1,9 @@
+METHOD=""
+ARGS=""
+
+OUT=""
+
+ADDRESS="localhost 8080"
+
+POST_EXPECTED='Status code is 200:
+{"status": "ok"}'
