@@ -22,12 +22,12 @@ def visited_domains(handler):
 
     query = urllib.parse.urlparse(handler.path).query
     if re.match(r'^from=[0-9]+&to=[0-9]+$', query) is None:
-        return http.HTTPStatus.BAD_REQUEST, 'An query is not matched with "from=<number>&to=<number>"', dict()
+        return http.HTTPStatus.BAD_REQUEST, 'An query is not matched with `from=<natural_number>&to=<natural_number>`', dict()
     query_val = re.sub(r'(from|to)=', '', query).split('&')
     query_val[0] = int(query_val[0])
     query_val[1] = int(query_val[1])
     if query_val[0] > query_val[1]:
-        return http.HTTPStatus.BAD_REQUEST, 'The value of the "from" less or equal the value of the "to"', dict()
+        return http.HTTPStatus.BAD_REQUEST, 'The value of the `from` less or equal the value of the `to`', dict()
 
     keys = conn.keys('*')
     for key in keys:
@@ -48,12 +48,16 @@ def visited_links(handler):
 
     conent_header = handler.headers.get('Content-Length')
     if conent_header is None:
-        return http.HTTPStatus.PARTIAL_CONTENT, 'The request does not contain the "Content-Length" header', dict()
+        return http.HTTPStatus.PARTIAL_CONTENT, 'The request does not contain the `Content-Length` header', dict()
     content_length = int(conent_header)
-    post_data = json.loads(handler.rfile.read(content_length).decode('utf-8'))
+    post_data = ''
+    try:
+        post_data = json.loads(handler.rfile.read(content_length).decode('utf-8'))
+    except json.decoder.JSONDecodeError:
+        return http.HTTPStatus.PARTIAL_CONTENT, 'The json is not correct', dict()
     links = post_data.get('links')
     if links is None:
-        return http.HTTPStatus.PARTIAL_CONTENT, 'The json body does not contain the "links" attribute (links array)', dict()
+        return http.HTTPStatus.PARTIAL_CONTENT, 'The json body does not contain the `links` attribute (links array)', dict()
 
     now = int(time.time())
     for link in links:

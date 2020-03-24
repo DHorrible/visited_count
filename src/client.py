@@ -25,6 +25,9 @@ def input_number(n, fun):
         except KeyboardInterrupt:
             ret = [None] * n
             break
+        except EOFError:
+            ret = [None] * n
+            break
         except ValueError:
             pass
         err = fun(x)
@@ -41,7 +44,6 @@ def input_number(n, fun):
 
 def run(host, port, method=None, arg1=None, arg2=None):
     conn = http_client.HTTPConnection(host, port)
-    print(str.format('The client has bean connected to {0}:{1}', host, port))
 
     if method is not None:
         if method == 'GET':
@@ -57,6 +59,8 @@ def run(host, port, method=None, arg1=None, arg2=None):
         status, resp = read_responce(conn)
         print_responce(status, resp)
         return
+
+    print(str.format('The client has bean connected to {0}:{1}', host, port))
 
     while True:
         print('Please, enter 1 for a GET request or 2 for a POST request')
@@ -106,7 +110,7 @@ if __name__ == '__main__':
         method = str(argv[3])
         if method == 'GET':
             if len(argv) != 6:
-                print('A GET request should contains two args (are time)')
+                print('Error: A GET request should contains two args (are time)!')
                 exit(1)
             try:
                 arg1 = int(argv[4])
@@ -116,7 +120,7 @@ if __name__ == '__main__':
                 exit(1)
         elif method == 'POST':
             if len(argv) != 5:
-                print('A POST request should contains one arg (is body)')
+                print('Error: A POST request should contains one arg (is body)!')
                 exit(1)
             arg1 = argv[4]
         else:
