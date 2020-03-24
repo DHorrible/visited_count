@@ -39,7 +39,7 @@ def visited_domains(handler):
         elif val[i] == query_val[0] or val[i] <= query_val[1]:
             ret.append(key.decode('utf-8'))
 
-    return http.HTTPStatus.OK, None, {'links': ret}
+    return http.HTTPStatus.OK, None, {'domains': ret}
 
 
 def visited_links(handler):
