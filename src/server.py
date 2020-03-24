@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import re
 import json
@@ -86,7 +88,7 @@ def set_log():
     })
 
 
-def run(host='localhost', port=8080):
+def run(host, port):
     global drv
 
     set_log()
@@ -115,11 +117,16 @@ def run(host='localhost', port=8080):
 if __name__ == '__main__':
     from sys import argv
 
-    if len(argv) == 3:
+    host = 'localhost'
+    port = 8080
+    if len(argv) == 2:
         host = str(argv[1])
-        port = int(argv[2])
-        run(host, port)
-    else:
-        run()
+    if len(argv) == 3:
+        try:
+            port = int(argv[2])
+        except ValueError:
+            print('Error: Port should be a number!')
+            exit(1)
+    run(host, port)
 else:
-    run()
+    run('localhost', 8080)

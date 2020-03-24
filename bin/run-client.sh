@@ -35,4 +35,18 @@ fi
 export PYTHONPATH=$PYTHONPATH:$ROOT_DIR
 export ROOT_DIR=$ROOT_DIR
 
-exec $PYTHON_BIN "$SRC_DIR/server.py"
+if [[ $# -eq 1 ]]
+then
+    exec $PYTHON_BIN "$SRC_DIR/client.py" $1
+elif [[ $# -eq 2 ]]
+then
+    exec $PYTHON_BIN "$SRC_DIR/client.py" $1 $2
+elif [[ $# -eq 4 ]]
+then
+    exec $PYTHON_BIN "$SRC_DIR/client.py" $1 $2 $3 $4
+elif [[ $# -eq 5 ]]
+then
+    exec $PYTHON_BIN "$SRC_DIR/client.py" $1 $2 $3 $4 $5
+else
+    exec $PYTHON_BIN "$SRC_DIR/client.py"
+fi
